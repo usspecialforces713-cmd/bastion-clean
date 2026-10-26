@@ -177,7 +177,7 @@ addEventListener('keydown',e=>{keys[e.code]=true;
   if(e.code=='Space'&&!e.repeat&&S.mega&&S.mode=='play'&&A&&(A.jc||0)<2){A.vy=12;A.jc=(A.jc||0)+1}
   if(S.mode=='play'){if(e.code=='Digit1')pick(0);if(e.code=='Digit2')pick(1);if(e.code=='Digit3')pick(2);if(e.code=='Digit4')pick(3);if(e.code=='Digit5')pick(4);if(e.code=='Digit6')pick(5);if(e.code=='Digit7')pick(6);
     if(e.code=='Tab'){for(let i=1;i<=C.length;i++){const n=(C.indexOf(A)+i)%C.length;if(C[n].alive){pick(n);break}}}}});
-addEventListener('keyup',e=>keys[e.code]=false);
+addEventListener('keyup',e=>{keys[e.code]=false;if(e.code==='KeyR'&&typeof releaseChargedAttack==='function')releaseChargedAttack(A)});
 addEventListener('pointerdown',e=>{if(!e.target.closest('button,.card')){if(e.pointerType=='touch'&&e.clientX<innerWidth*.4){joy={id:e.pointerId,x:e.clientX,y:e.clientY}}else{mouse.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);if(e.button==2)rdown=true;else down=true}}});
 addEventListener('pointerup',e=>{if(joy&&e.pointerId==joy.id){joy=null;JV.x=0;JV.z=0}else{down=false;rdown=false}});
 addEventListener('pointermove',e=>{if(joy&&e.pointerId==joy.id){const dx=(e.clientX-joy.x)/50,dz=(e.clientY-joy.y)/50,l=Math.hypot(dx,dz);JV.x=dx/Math.max(1,l);JV.z=dz/Math.max(1,l)}else mouse.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1)});

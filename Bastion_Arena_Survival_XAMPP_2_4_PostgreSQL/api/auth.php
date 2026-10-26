@@ -13,13 +13,13 @@ try {
     if ($action === 'register') {
         $hash = password_hash($password, PASSWORD_DEFAULT);
         try {
-            $stmt = $pdo->prepare('INSERT INTO users (username, password_hash) VALUES (:username, :hash)');
+            $stmt = $pdo->prepare('INSERT INTO users (username, password_hash) VALUES (:username, :hash) RETURNING id');
             $stmt->execute(['username' => $username, 'hash' => $hash]);
         } catch (PDOException $e) {
-            if ($e->getCode() === '23000') json_response(['ok'=>false,'message'=>'Ce nom d’utilisateur est déjà utilisé.'], 409);
+            if ($e->getCode() === '23505') json_response(['ok'=>false,'message'=>'Ce nom d’utilisateur est déjà utilisé.'], 409);
             throw $e;
         }
-        $userId = (int)$pdo->lastInsertId();
+        $userId = (int)$stmt->fetchColumn();
     } elseif ($action === 'login') {
         $stmt = $pdo->prepare('SELECT id, username, password_hash FROM users WHERE username = :username LIMIT 1');
         $stmt->execute(['username' => $username]);
@@ -27,6 +27,8 @@ try {
         if (!$user || !password_verify($password, $user['password_hash'])) json_response(['ok'=>false,'message'=>'Nom d’utilisateur ou mot de passe incorrect.'], 401);
         $userId = (int)$user['id'];
         $username = (string)$user['username'];
+        $touch = $pdo->prepare('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = :id');
+        $touch->execute(['id' => $userId]);
     } else {
         json_response(['ok'=>false,'message'=>'Action inconnue.'], 400);
     }

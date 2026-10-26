@@ -30,8 +30,19 @@ try {
         $cleanProfile['highestLevel'] = max($cleanProfile['highestLevel'], (int)($oldProfile['highestLevel'] ?? 1));
         if ((int)($oldBest['score'] ?? 0) > $cleanBest['score']) $cleanBest = ['score'=>(int)$oldBest['score'], 'wave'=>(int)($oldBest['wave'] ?? 0)];
     }
-    $stmt = $pdo->prepare('INSERT INTO player_saves (user_id, profile_json, best_json) VALUES (:uid, :profile, :best) ON DUPLICATE KEY UPDATE profile_json = VALUES(profile_json), best_json = VALUES(best_json), updated_at = CURRENT_TIMESTAMP');
-    $stmt->execute(['uid'=>$userId,'profile'=>json_encode($cleanProfile),'best'=>json_encode($cleanBest)]);
+    $stmt = $pdo->prepare(
+        'INSERT INTO player_saves (user_id, profile_json, best_json)
+         VALUES (:uid, CAST(:profile AS JSONB), CAST(:best AS JSONB))
+         ON CONFLICT (user_id) DO UPDATE SET
+           profile_json = EXCLUDED.profile_json,
+           best_json = EXCLUDED.best_json,
+           updated_at = CURRENT_TIMESTAMP'
+    );
+    $stmt->execute([
+        'uid' => $userId,
+        'profile' => json_encode($cleanProfile, JSON_THROW_ON_ERROR),
+        'best' => json_encode($cleanBest, JSON_THROW_ON_ERROR),
+    ]);
     json_response(['ok'=>true,'profile'=>$cleanProfile,'best'=>$cleanBest,'savedAt'=>date(DATE_ATOM)]);
 } catch (Throwable $e) {
     error_log('[Bastion save] ' . $e->getMessage());

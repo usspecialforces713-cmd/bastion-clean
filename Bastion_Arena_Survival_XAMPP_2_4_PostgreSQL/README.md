@@ -68,6 +68,13 @@ Note : les changements visuels du menu et les scripts ont été vérifiés stati
 
 ## Version XAMPP — comptes et sauvegarde hybride
 
-Cette édition ajoute une couche PHP/MySQL sans déplacer le moteur 3D hors du navigateur. La progression de statistiques et le record restent stockés en local dans `localStorage`. Si le joueur se connecte sur le serveur XAMPP, les statistiques et records sont aussi synchronisés vers MySQL/MariaDB.
+Cette édition ajoute une couche PHP/PostgreSQL sans déplacer le moteur 3D hors du navigateur. La progression de statistiques et le record restent stockés en local dans `localStorage`. Si le joueur se connecte sur le serveur XAMPP, les statistiques et records sont aussi synchronisés vers PostgreSQL.
 
-Installation complète : voir `INSTALLATION_XAMPP.md`. Importer `database/bastion.sql` dans phpMyAdmin, puis ajuster `config/database.php` si les identifiants MySQL diffèrent. Accès via `http://localhost/bastion/` (pas en ouvrant le fichier HTML directement).
+Installation complète : voir `INSTALLATION_XAMPP.md`. Exécuter `database/bastion.sql` dans PostgreSQL (ou dans le SQL Editor de Supabase), puis configurer `config/database.php`. XAMPP fournit Apache/PHP ; son service MySQL est MariaDB, pas PostgreSQL. Accès via `http://localhost/bastion/` (pas en ouvrant le fichier HTML directement).
+
+
+## Version 2.4 — Movesets chargés
+- Neuf héros ont une attaque chargée dédiée : Guerrier, Gardien, Samouraï, Tireur, Archer, Mage, Météor, Pyro et Dragon.
+- En combat, maintenir **R** pour charger puis relâcher pour lancer l'attaque. La puissance augmente avec la durée de charge, jusqu'à un maximum.
+- Les autres héros conservent leurs attaques et capacités habituelles. Les mouvements sont déclenchés localement côté JavaScript et ne nécessitent pas de requête PHP.
+- Le menu affiche les héros compatibles et le HUD montre la jauge de charge.

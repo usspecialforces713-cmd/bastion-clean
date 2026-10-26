@@ -10,9 +10,21 @@ const DESC={tireur:'Tir à distance. Spécial : Kamehameha.',guerrier:'Coups tr�
  joker:'Effets aléatoires. Spécial : roulette à 7 résultats.',pirate:'Boulets de canon explosifs. Spécial : navire qui bombarde un côté.',chasseur:'Chaînes qui immobilisent. Spécial : cage sur l’ennemi le plus fort.',
  maree:'Jets d’eau qui repoussent. Spécial : tsunami qui traverse l’arène.',vent:'Bourrasque qui repousse, ralentit et renvoie les tirs ennemis. Spécial : tornade qui aspire puis disperse.',
  sable:'Jets de sable qui aveuglent. Spécial : tempête de sable qui ronge.',magnet:'Orbe qui regroupe les ennemis à distance, émetteur répulsif. Spécial : aimant géant qui colle puis explose.'};
+const CHARGED_MOVES={
+  guerrier:{name:'Brise-garde',kind:'melee',min:.25,max:1.25,color:0xffc857,desc:'Frappe lourde en arc'},
+  gardien:{name:'Onde du rempart',kind:'slam',min:.35,max:1.4,color:0x72c9ff,desc:'Onde de choc autour du tank'},
+  samourai:{name:'Iaido solaire',kind:'melee',min:.2,max:1.1,color:0xffe4a3,desc:'Entaille rapide et longue'},
+  tireur:{name:'Rayon perforant',kind:'shot',min:.25,max:1.35,color:0x66e7ff,desc:'Tir chargé à longue portée'},
+  archer:{name:'Flèche du faucon',kind:'shot',min:.25,max:1.3,color:0x8effa7,desc:'Flèche chargée'},
+  mage:{name:'Nova arcanique',kind:'shot',min:.35,max:1.5,color:0xc7a0ff,desc:'Projectile explosif renforcé'},
+  meteor:{name:'Impact céleste',kind:'slam',min:.45,max:1.5,color:0xff8c55,desc:'Explosion autour du point de lancement'},
+  pyro:{name:'Fournaise',kind:'shot',min:.3,max:1.25,color:0xff633d,desc:'Orbe de feu chargé'},
+  dragon:{name:'Souffle draconique',kind:'shot',min:.35,max:1.5,color:0xffb347,desc:'Souffle concentré'}
+};
+
 function menu(){
   const o=$('ov');o.hidden=false;
-  o.innerHTML=`<div class="menu-shell"><div class="menu-top"><div class="brand-mark">B<span>✦</span></div><div><div class="eyebrow">SURVIVAL TACTIQUE · ROGUELITE</div><h1>BASTION <em>ARENA</em></h1><p class="menu-sub">Formez votre escouade. Tenez la ligne. Brisez les vagues.</p></div><div class="version-tag">VERSION 2.3<br><small>HERO COMBAT</small></div></div><div class="menu-layout"><section class="menu-main"><div class="section-head"><div><span class="eyebrow">01 / PRÉPARATION</span><h2>Choisissez vos héros</h2></div><div class="squad-count" id="cnt">0 / 6</div></div><p class="menu-copy">Composez une escouade de 1 à 6 héros. Le premier héros sélectionné est contrôlé directement ; les autres combattent de façon autonome selon leur rôle.</p><input id="hero-search" class="hero-search" type="search" placeholder="Rechercher une classe…" aria-label="Rechercher un héros"><div id="pickers" class="hero-grid"></div><div class="menu-actions"><button id="go2" class="primary-action">LANCER UNE PARTIE <span>→</span></button><button id="go3" class="secondary-action">DÉFI MÉGA BOSS</button></div></section><aside class="menu-side"><div class="side-panel"><span class="eyebrow">02 / DOSSIER DE COMBAT</span><h3>Votre légende</h3><div class="record-grid"><div><small>MEILLEUR SCORE</small><strong id="stat-score">—</strong></div><div><small>MEILLEURE VAGUE</small><strong id="stat-wave">—</strong></div><div><small>PARTIES</small><strong id="stat-runs">0</strong></div><div><small>ÉLIMINATIONS</small><strong id="stat-kills">0</strong></div></div><div id="bst" class="record-note"></div></div><div class="side-panel"><span class="eyebrow">03 / COMMANDES</span><h3>Combat opérationnel</h3><div class="key-row"><kbd>Z Q S D</kbd><span>Déplacement</span></div><div class="key-row"><kbd>Clic / Espace</kbd><span>Attaquer</span></div><div class="key-row"><kbd>Maj</kbd><span>Esquive parfaite</span></div><div class="key-row"><kbd>E / clic droit</kbd><span>Capacité spéciale</span></div><div class="key-row"><kbd>1–6 / Tab</kbd><span>Changer de héros</span></div><div class="key-row"><kbd>V</kbd><span>Ordre de l’escouade</span></div><div class="key-row"><kbd>F</kbd><span>Cible prioritaire</span></div><div class="key-row"><kbd>P / Échap</kbd><span>Pause</span></div></div><p class="menu-foot">PROGRESSION ROGUELITE · AMÉLIORATIONS PAR PARTIE · SAUVEGARDE LOCALE</p></aside></div></div>`;
+  o.innerHTML=`<div class="menu-shell"><div class="menu-top"><div class="brand-mark">B<span>✦</span></div><div><div class="eyebrow">SURVIVAL TACTIQUE · ROGUELITE</div><h1>BASTION <em>ARENA</em></h1><p class="menu-sub">Formez votre escouade. Tenez la ligne. Brisez les vagues.</p></div><div class="version-tag">VERSION 2.3<br><small>HERO COMBAT</small></div></div><div class="menu-layout"><section class="menu-main"><div class="section-head"><div><span class="eyebrow">01 / PRÉPARATION</span><h2>Choisissez vos héros</h2></div><div class="squad-count" id="cnt">0 / 6</div></div><p class="menu-copy">Composez une escouade de 1 à 6 héros. Le premier héros sélectionné est contrôlé directement ; les autres combattent de façon autonome selon leur rôle.</p><input id="hero-search" class="hero-search" type="search" placeholder="Rechercher une classe…" aria-label="Rechercher un héros"><div id="pickers" class="hero-grid"></div><div class="menu-actions"><button id="go2" class="primary-action">LANCER UNE PARTIE <span>→</span></button><button id="go3" class="secondary-action">DÉFI MÉGA BOSS</button></div></section><aside class="menu-side"><div class="side-panel"><span class="eyebrow">02 / DOSSIER DE COMBAT</span><h3>Votre légende</h3><div class="record-grid"><div><small>MEILLEUR SCORE</small><strong id="stat-score">—</strong></div><div><small>MEILLEURE VAGUE</small><strong id="stat-wave">—</strong></div><div><small>PARTIES</small><strong id="stat-runs">0</strong></div><div><small>ÉLIMINATIONS</small><strong id="stat-kills">0</strong></div></div><div id="bst" class="record-note"></div></div><div class="side-panel"><span class="eyebrow">03 / COMMANDES</span><h3>Combat opérationnel</h3><div class="key-row"><kbd>Z Q S D</kbd><span>Déplacement</span></div><div class="key-row"><kbd>Clic / Espace</kbd><span>Attaquer</span></div><div class="key-row"><kbd>Maj</kbd><span>Esquive parfaite</span></div><div class="key-row"><kbd>E / clic droit</kbd><span>Capacité spéciale</span></div><div class="key-row"><kbd>Maintenir R</kbd><span>Moveset chargé (héros compatibles)</span></div><div class="key-row"><kbd>1–6 / Tab</kbd><span>Changer de héros</span></div><div class="key-row"><kbd>V</kbd><span>Ordre de l’escouade</span></div><div class="key-row"><kbd>F</kbd><span>Cible prioritaire</span></div><div class="key-row"><kbd>P / Échap</kbd><span>Pause</span></div></div><p class="menu-foot">PROGRESSION ROGUELITE · AMÉLIORATIONS PAR PARTIE · SAUVEGARDE LOCALE</p></aside></div></div>`;
   const grid=$('pickers');
   const draw=()=>{
     grid.innerHTML='';const q=($('hero-search').value||'').trim().toLocaleLowerCase('fr');
@@ -20,7 +32,7 @@ function menu(){
       const r=ROLES[k],on=SEL.includes(k),b=document.createElement('button');
       b.className='hero-card'+(on?' selected':'');b.style.setProperty('--hero-color','#'+r.col.toString(16).padStart(6,'0'));
       const roleTag=({tireur:'DISTANCE',archer:'DISTANCE',ingenieur:'TECH',mecha:'TECH',medic:'SOUTIEN',paladin:'SOUTIEN',gardien:'TANK',terre:'TANK',assassin:'ASSAUT',ombre:'ASSAUT',samourai:'ASSAUT',guerrier:'CORPS À CORPS',fighter:'CORPS À CORPS',mage:'MAGIE',neant:'MAGIE',pyro:'MAGIE',meteor:'MAGIE',givre:'MAGIE',volt:'MAGIE',necro:'INVOCATION',druide:'TRANSFORM.',plant:'CONTRÔLE',toxine:'CONTRÔLE',chasseur:'CONTRÔLE',maree:'CONTRÔLE',vent:'CONTRÔLE',sable:'CONTRÔLE',magnet:'CONTRÔLE',dragon:'TRANSFORM.',joker:'SPÉCIAL',miroir:'SPÉCIAL',boomerang:'DISTANCE',pirate:'DISTANCE'})[k]||'COMBAT';
-      b.innerHTML='<span class="hero-number">'+(on?String(SEL.indexOf(k)+1).padStart(2,'0'):'＋')+'</span><span class="hero-info"><b>'+r.name+'</b><span class="role-tag">'+roleTag+'</span><small>'+DESC[k]+'</small></span><span class="hero-check">'+(on?'✓':'＋')+'</span>';
+      const move=CHARGED_MOVES[k];b.innerHTML='<span class="hero-number">'+(on?String(SEL.indexOf(k)+1).padStart(2,'0'):'＋')+'</span><span class="hero-info"><b>'+r.name+'</b><span class="role-tag">'+roleTag+'</span><small>'+DESC[k]+'</small>'+(move?'<span class="moveset-tag">R · '+move.name+'</span>':'')+'</span><span class="hero-check">'+(on?'✓':'＋')+'</span>';
       b.setAttribute('aria-pressed',String(on));b.onclick=()=>{if(on)SEL=SEL.filter(x=>x!==k);else if(SEL.length<6)SEL=[...SEL,k];draw()};grid.appendChild(b);
     });
     $('cnt').textContent=SEL.length+' / 6 HÉROS';$('go2').disabled=!SEL.length;$('go3').disabled=!SEL.length;
@@ -79,6 +91,33 @@ function updateComboHud(){
   if(ready&&A.comboHudWasReady!==true){box.classList.remove('pop');void box.offsetWidth;box.classList.add('pop')}
   A.comboHudWasReady=ready;
 }
+
+// Movesets spécifiques : maintenir R puis relâcher pour une attaque chargée.
+
+function chargedMoveFor(c){return c&&CHARGED_MOVES[Object.keys(ROLES).find(k=>ROLES[k]===c.r)]||null}
+function releaseChargedAttack(c){
+  if(!c||!c.chargeT||c.chargeT<=0)return;
+  const cfg=chargedMoveFor(c),t=c.chargeT;c.chargeT=0;c.isCharging=false;
+  if(!cfg||!c.alive||S.mode!=='play')return;
+  const power=Math.max(0,Math.min(1,(t-cfg.min)/(cfg.max-cfg.min))),mult=1.35+power*1.65,p=c.g.position,ang=c.g.rotation.y;
+  c.attackAnim=.5;c.attackStyle=cfg.kind==='melee'?'heavy':'cast';
+  flash(p,1.1+power*1.8,cfg.color);burst(new THREE.Vector3(p.x,p.y+1,p.z),cfg.color);snd(180+power*260,.18,'triangle');
+  if(cfg.kind==='melee'||cfg.kind==='slam'){
+    const radius=(cfg.kind==='slam'?4.2:3.2)+power*2.3;
+    slash(p,ang,radius,cfg.color,1.1+power*.65);
+    for(let i=E.length-1;i>=0;i--){const e=E[i],dx=e.position.x-p.x,dz=e.position.z-p.z,d=Math.hypot(dx,dz);if(d<radius+(e.userData.rad||0)&&(cfg.kind==='slam'||adf(dx,dz,ang)<1.05+power*.2)&&hv(p,e)){hitE(i,(c.r.mdmg||2)+S.dm+mult*(c.r.mdmg||2),null);if(c.r.kb){const l=d||1;e.position.x+=dx/l*c.r.kb*(1+power);e.position.z+=dz/l*c.r.kb*(1+power)}}}
+  }else{
+    const n=B.length;shoot(c,ang,cfg.color);const b=B[B.length-1];if(b&&b.userData){b.userData.d=((b.userData.d||1)+S.dm)*mult;b.userData.l=1.5+power*.65;b.userData.v.multiplyScalar(1+power*.6);b.userData.aoe=c.r===ROLES.mage||c.r===ROLES.meteor;b.userData.rad=power*.7;b.userData.charged=1}
+  }
+  banner(cfg.name+' · '+Math.round(mult*100)+'%');combatImpact(p,cfg.color,true);
+}
+function updateChargeHud(){
+  let el=$('moveset-hud');if(!el)return;const cfg=chargedMoveFor(A);
+  if(!A||!cfg){el.hidden=true;return}el.hidden=false;
+  const t=A.chargeT||0,ratio=Math.min(1,t/cfg.max);el.innerHTML='<b>'+cfg.name+'</b><span>Maintenir R · relâcher pour frapper</span><i><u style="width:'+(ratio*100)+'%;background:#'+cfg.color.toString(16).padStart(6,'0')+'"></u></i>';
+  el.classList.toggle('charging',!!A.isCharging);
+}
+
 function act(c,dt,ctrl){
   const p=c.g.position,spd=c.r.spd*S.sm*(c.spm||1)*(c.tf>0?(c.tk=='wolf'&&c.r==ROLES.druide?1.8:c.r==ROLES.mecha?.85:1):1);let mx=0,mz=0;c.cd-=dt;c.inv=Math.max(0,(c.inv||0)-dt);c.dodgeCd=Math.max(0,(c.dodgeCd||0)-dt);c.dodgeT=Math.max(0,(c.dodgeT||0)-dt);CY=p.y;
   let en=near(p,E);if(!ctrl&&S.focusTarget&&E.includes(S.focusTarget)&&S.focusTarget.userData.hp>0){const fe=S.focusTarget;en={o:fe,d:Math.hypot(fe.position.x-p.x,fe.position.z-p.z)}}const r=c.r;let wantFire=false,face=null;
@@ -100,6 +139,7 @@ function act(c,dt,ctrl){
   }
   if(!ctrl&&ORD&&A&&c!=A){const hx=A.g.position.x-p.x,hz=A.g.position.z-p.z,hd=Math.hypot(hx,hz)||1;
     if(ORD==1&&hd>7){mx=hx/hd;mz=hz/hd}else if(ORD==2){if(hd>3.5){mx=hx/hd;mz=hz/hd}else{mx=0;mz=0}}}
+  const cfgCharge=chargedMoveFor(c);if(ctrl&&cfgCharge&&keys.KeyR&&S.mode==='play'){c.isCharging=true;c.chargeT=Math.min(cfgCharge.max,(c.chargeT||0)+dt);c.cd=Math.max(c.cd,0)}
   const ml=Math.hypot(mx,mz);c.mv=ml>.05;
   if(ctrl&&c.dodgeT>0){p.x+=(c.dodgeX||0)*spd*3.15*dt;p.z+=(c.dodgeZ||0)*spd*3.15*dt;c.mv=true;}
   else if(c.mv){p.x+=mx/(ml>1?ml:1)*spd*dt;p.z+=mz/(ml>1?ml:1)*spd*dt}
@@ -139,7 +179,7 @@ function act(c,dt,ctrl){
   u.legs[0].rotation.x=s;u.legs[1].rotation.x=-s;
   u.arms[0].rotation.x=c.mv?-s*.8:-.08;u.arms[1].rotation.x=c.mv?s*.8:-1.12;
   u.arms[0].rotation.z=c.mv?-.08:0;u.arms[1].rotation.z=c.mv?.08:0;
-  c.attackAnim=Math.max(0,(c.attackAnim||0)-dt);
+  c.attackAnim=Math.max(0,(c.attackAnim||0)-dt);if(c===A)updateChargeHud();
   const phase=c.attackAnim>0?1-c.attackAnim/.36:0,atk=c.attackAnim>0?Math.sin(Math.PI*Math.max(0,Math.min(1,phase))):0;
   const style=c.attackStyle||attackStyle(c);
   if(c.attackAnim>0){
