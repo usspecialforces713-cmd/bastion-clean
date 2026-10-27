@@ -10,6 +10,7 @@
   const logout = $('account-logout');
   const openButton = $('account-open');
   const status = $('account-status');
+  const subtitle = document.querySelector('.account-subtitle');
   let mode = 'login';
   let currentUser = null;
 
@@ -25,13 +26,13 @@
     best: readLocal('bastion-best', { wave: 0, score: 0 })
   });
   async function api(path, options = {}) {
-    const response = await fetch(`api/${path}`, {
+    const response = await fetch(`/api/${path}`, {
       credentials: 'same-origin', cache: 'no-store',
       ...options,
       headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) }
     });
     let data;
-    try { data = await response.json(); } catch (_) { throw new Error('Réponse serveur invalide. Vérifie Apache et PHP.'); }
+    try { data = await response.json(); } catch (_) { throw new Error('Réponse API invalide. Vérifie les fonctions Vercel et les variables Supabase.'); }
     if (!response.ok || data.ok === false) throw new Error(data.message || `Erreur serveur (${response.status}).`);
     return data;
   }
@@ -53,7 +54,7 @@
       status.textContent = `Compte : ${currentUser.username}`;
       openButton.textContent = 'Mon compte';
       $('account-title').textContent = `Bienvenue, ${currentUser.username}`;
-      $('account-subtitle').textContent = 'La sauvegarde locale et la synchronisation en ligne sont actives.';
+      if (subtitle) subtitle.textContent = 'La sauvegarde locale et la synchronisation en ligne sont actives.';
       form.hidden = true;
       $('account-tabs').hidden = true;
       logout.hidden = false;
@@ -61,7 +62,7 @@
     } else {
       status.textContent = 'Mode local';
       openButton.textContent = 'Connexion';
-      $('account-subtitle').textContent = 'Synchronise tes records et statistiques sur ce serveur.';
+      if (subtitle) subtitle.textContent = 'Synchronise tes records et statistiques sur ce serveur.';
       form.hidden = false;
       $('account-tabs').hidden = false;
       logout.hidden = true;
@@ -84,9 +85,9 @@
     return { profile, best };
   }
   async function syncAfterLogin() {
-    const loaded = await api('load.php');
+    const loaded = await api('load');
     const merged = mergeAndStore(loaded.save || {});
-    await api('save.php', { method: 'POST', body: JSON.stringify(merged) });
+    await api('save', { method: 'POST', body: JSON.stringify(merged) });
   }
   openButton.addEventListener('click', () => { modal.hidden = false; if (!currentUser) usernameInput.focus(); });
   $('account-close').addEventListener('click', () => { modal.hidden = true; });
@@ -99,7 +100,7 @@
     submit.disabled = true;
     showMessage(mode === 'login' ? 'Connexion…' : 'Création du compte…');
     try {
-      const result = await api('auth.php', { method: 'POST', body: JSON.stringify({ action: mode === 'login' ? 'login' : 'register', username: usernameInput.value.trim(), password: passwordInput.value }) });
+      const result = await api('auth', { method: 'POST', body: JSON.stringify({ action: mode === 'login' ? 'login' : 'register', username: usernameInput.value.trim(), password: passwordInput.value }) });
       currentUser = result.user;
       passwordInput.value = '';
       renderUser();
@@ -116,7 +117,7 @@
   logout.addEventListener('click', async () => {
     logout.disabled = true;
     try {
-      await api('me.php', { method: 'POST', body: JSON.stringify({ action: 'logout' }) });
+      await api('me', { method: 'POST', body: JSON.stringify({ action: 'logout' }) });
       currentUser = null; renderUser(); setMode('login'); showMessage('Déconnecté. La sauvegarde locale reste disponible.');
     } catch (error) { showMessage(error.message || 'Déconnexion impossible.', true); }
     finally { logout.disabled = false; }
@@ -127,17 +128,17 @@
       writeLocal('bastion-profile', data.profile);
       writeLocal('bastion-best', data.best);
       if (!currentUser) return { localOnly: true };
-      return api('save.php', { method: 'POST', body: JSON.stringify(data) });
+      return api('save', { method: 'POST', body: JSON.stringify(data) });
     },
     load: async () => {
       if (!currentUser) return localData();
-      const loaded = await api('load.php');
+      const loaded = await api('load');
       return mergeAndStore(loaded.save || {});
     }
   };
   async function init() {
     try {
-      const data = await api('me.php');
+      const data = await api('me');
       currentUser = data.user || null;
       renderUser();
       if (currentUser) {
