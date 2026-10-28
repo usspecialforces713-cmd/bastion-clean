@@ -1,0 +1,6 @@
+Options -Indexes
+RewriteEngine On
+RewriteRule ^api/(auth|me|save|load|health)/?$ api/$1.php [QSA,L]
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
